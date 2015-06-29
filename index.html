@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>SANKEY Experiment</title>
 <style>
 
 .node rect {
@@ -14,9 +13,7 @@
   text-shadow: 0 1px 0 #fff;
 }
 
-.link {
-  fill: none;
-  stroke: #000;
+.link { 
   stroke-opacity: .2;
 }
 
@@ -41,7 +38,7 @@ var margin = {top: 10, right: 10, bottom: 10, left: 10},
 
 var formatNumber = d3.format(",.0f"),    // zero decimal places
     format = function(d) { return formatNumber(d) + " " + units; },
-    color = d3.scale.category20();
+    color = d3.scale.category20(); // May need to comment this out
 
 // append the svg canvas to the page
 var svg = d3.select("#chart").append("svg")
@@ -73,7 +70,16 @@ d3.json("sankey-formatted.json", function(error, graph) {
     .enter().append("path")
       .attr("class", "link")
       .attr("d", path)
-      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+      .style("fill", "none")
+      .style("stroke", function (d) {
+				      if (d.dy === 0) {
+					return "red"; // If no flow is put through, color it red
+				      }
+				      else {
+					return "black";
+				      }
+				    })
+      .style("stroke-width", function(d) { return Math.max(2, d.dy); })
       .sort(function(a, b) { return b.dy - a.dy; });
 
 // add the link titles
@@ -99,8 +105,21 @@ d3.json("sankey-formatted.json", function(error, graph) {
   node.append("rect")
       .attr("height", function(d) { return d.dy; })
       .attr("width", sankey.nodeWidth())
-      .style("fill", function(d) { 
-		  return d.color = color(d.name.replace(/ .*/, "")); })
+      .style("fill", function(d) {
+		  console.log('name', d.name);
+		  //var id = d.name.charAt(0); // Get first letter of node name
+		  var id = d.name;
+		  console.log('id', id);
+		  if (id.charAt(0) === "S") { // If it is a supply node, make it green
+		    return d.color = "rgb(0," +(Math.min(Math.round(d.dy)*2, 255))+ ", 0)";
+		  }
+		  else if (id.charAt(0) === "N") { // If it is a normal node, make it blue
+		    return d.color = "rgb(0, 0," +(Math.min(Math.round(d.dy)*2, 255))+ ")"; 
+		  }
+		  else { // If it is a demand node, make it red
+		    return d.color = "rgb(" +(Math.min(Math.round(d.dy)*2, 255))+ ", 0, 0)";
+		  }
+		  })
       .style("stroke", function(d) { 
 		  return d3.rgb(d.color).darker(2); })
     .append("title")
