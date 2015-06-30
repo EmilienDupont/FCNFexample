@@ -73,12 +73,20 @@
       </ul>
       </p>
       
+      <p>
+      Moreover, we associate an indicator variable $y_{ij} \in \{0,1\}$ with each edge. If $y_{ij} = 1$ we charge an amount $f_{ij}$
+      to allow flow on the edge. If $y_{ij} = 0$, no flow is allowed on the edge and no charge will be made. Therefore, the total cost,
+      which we seek to minimize, is given by
+      \[
+        \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}
+      \]
+      </p>
       
       <p> So finally our model becomes
        \[
       \begin{array}{ll}
       \text{minimize} & \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij} \\
-      \text{subject to} & \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \forall \in V \\
+      \text{subject to} & \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \forall i \in V \\
                         & 0 \leq x_{ij} \leq u_{ij} y_{ij} \quad \forall (i,j) \in E \\
                         & y_{ij} \in \{0,1\}
       \end{array}
@@ -97,11 +105,9 @@
     </div>
     <div class="section" id="demo">
       <h2><a href="#demo" name="demo">Live Demo</a></h2>
-      <!-- Where we put graphics -->
       <div id="demoarea">
       </div>
-      <!-- When button is clicked => calls compute() -->
-      <button onclick="compute()">Compute Optimal Portfolio</button>
+      <button onclick="compute()">Compute Optimal Flow</button>
     </div>
 
  
