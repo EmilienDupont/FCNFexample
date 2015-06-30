@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script>
+  MathJax.Hub.Config({
+                      tex2jax: {inlineMath: [['$', '$'], ['\\(','\\)']]},
+                      TeX: { equationNumbers: {autoNumber: "AMS"} },
+                      "HTML-CSS": { showMathMenu: false,
+                                    scale: 90 }
+
+                     });
+</script>
+
 <style>
 
 .node rect {
@@ -21,16 +33,83 @@
   stroke-opacity: .5;
 }
 
+
 </style>
 <body>
- 
-<p id="chart">
+  <ul id="nav">
+    <li class="current"><a href="#intro">Intro</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#model">Model</a></li>
+    <li><a href="#implementation">Implementation</a></li>
+    <li><a href="#demo">Live Demo</a></li>
+  </ul>
+  <div id="container">
+    <div class="section" id="intro">
+      <h1>Fixed Charge Network Flow</h1>
+        <subtitle>with integer programming and Gurobi</subtitle>
+    </div>
+
+    <div class="section" id="problem">
+      <h2><a href="#problem" name="problem">Problem Description</a></h2>
+      Problem description goes here
+      
+      <p>
+      Fixed Charge Network Flow, which application?
+      </p>
+
+    </div>
+    <div class="section" id="model">
+      <h2><a href="#model" name="model">Mathematical Model</a></h2>
+
+      <p>Model description goes here.</p>
+
+      <p> 
+      We consider a network $G = (V,E)$ with $n$ nodes and $m$ edges. With each edge $(i,j) \in E$ we associate:
+      <ul>
+	<li>A flow $x_{ij}$</li>
+	<li>A maximum capacity $u_{ij}$</li>
+	<li>A cost per unit flow $c_{ij}$</li>
+	<li>A fixed charge for using the edge $f_{ij}$</li>
+      </ul>
+      </p>
+      
+      
+      <p> So finally our model becomes
+       \[
+      \begin{array}{ll}
+      \text{minimize} & \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij} \\
+      \text{subject to} & \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \forall \in V \\
+                        & 0 \leq x_{ij} \leq u_{ij} y_{ij} \quad \forall (i,j) \in E \\
+                        & y_{ij} \in \{0,1\}
+      \end{array}
+      \]
+      By solving the optimization problem in the variables $x_{ij}$ and $y_{ij}$ we can compute the optimal flow.
+      </p>
+      
+    <div class="section" id="implementation">
+      <h2><a href="#implementation" name="implementation">Implementation</a></h2>
+      <p>Below is the full implementation of the model (and the associated data) in
+        Gurobi's Python interface:
+      </p>
+      <pre>
+
+      </pre>
+    </div>
+    <div class="section" id="demo">
+      <h2><a href="#demo" name="demo">Live Demo</a></h2>
+      <!-- Where we put graphics -->
+      <div id="demoarea">
+      </div>
+      <!-- When button is clicked => calls compute() -->
+      <button onclick="compute()">Compute Optimal Portfolio</button>
+    </div>
+
  
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="sankey.js"></script>
 <script>
 	
-var units = "Widgets";
+var units = "Units of flow";
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 700 - margin.left - margin.right,
@@ -41,7 +120,7 @@ var formatNumber = d3.format(",.0f"),    // zero decimal places
     color = d3.scale.category20(); // May need to comment this out
 
 // append the svg canvas to the page
-var svg = d3.select("#chart").append("svg")
+var svg = d3.select("#demoarea").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -150,6 +229,3 @@ d3.json("sankey-formatted.json", function(error, graph) {
 });
 
 </script>
- 
-</body>
-</html>
