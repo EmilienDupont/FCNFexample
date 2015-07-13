@@ -11,8 +11,109 @@
 
                      });
 </script>
-
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
 <style>
+
+@import url(http://fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i|PT+Sans|PT+Sans:b);
+@import url(http://fonts.googleapis.com/css?family=Lato);
+html {
+   min-width: 1040px;
+}
+
+body {
+   background: #fcfcfa;
+   color: #333;
+   font-family: "PT Serif", serif;
+   /*margin: 0 1em 4em auto;*/
+   position: relative;
+   width: 960px;
+   left: 13em;
+}
+
+h1, h2, h3, h4 { font-family: "Lato", "PT Serif", serif; color: #000; text-rendering: optimizeLegibility; }
+
+h1 {
+  font-size: 64px;
+  line-height: 73px;
+  font-weight: 900;
+  margin-top: 0.67em;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+h2 {
+   margin-top: 2em;
+}
+
+subtitle {
+   display:block;
+   font-family: "PT Serif", serif;
+   font-size: 32px;
+   font-style: italic;
+   font-weight: 100;
+}
+
+p {
+  line-height: 150%;
+  width: 720px;
+}
+
+a {
+  color: steelblue;
+  cursor: auto;
+}
+
+a:not(:hover) {
+   text-decoration: none;
+}
+
+pre {
+   border-left: solid 2px #ccc;
+   padding-left: 18px;
+   margin: 2em 0 2em -20px;
+}
+
+aside {
+   font-size: small;
+   right: 0;
+   position: absolute;
+   width: 180px;
+}
+
+#nav {
+        left: 5px;
+        font-family: "Lato", serif;
+        font-weight: 700;
+        list-style: none;
+        margin: 0;
+        position: fixed;
+        top: 10px;
+        box-sizing: border-box;
+}
+
+
+#nav li {
+        margin-bottom: 0px;
+}
+
+#nav a {
+        color: #333;
+        display: block;
+        font-size: 14px;
+        border-left: 3px solid #fcfcfa;
+        padding: 5px 10px;
+        text-decoration: none;
+}
+
+#nav a:hover {
+   border-left: 3px solid steelblue;
+}
+
+#nav .current a {
+   border-left: 3px solid steelblue;
+}
+
 
 .node rect {
   cursor: move;
@@ -25,7 +126,7 @@
   text-shadow: 0 1px 0 #fff;
 }
 
-.link { 
+.link {
   stroke-opacity: .2;
 }
 
@@ -52,7 +153,7 @@
     <div class="section" id="problem">
       <h2><a href="#problem" name="problem">Problem Description</a></h2>
       Problem description goes here
-      
+
       <p>
       Fixed Charge Network Flow, which application?
       </p>
@@ -63,7 +164,7 @@
 
       <p>Model description goes here.</p>
 
-      <p> 
+      <p>
       We consider a network $G = (V,E)$ with $n$ nodes and $m$ edges. With each edge $(i,j) \in E$ we associate:
       <ul>
 	<li>A flow $x_{ij}$</li>
@@ -72,7 +173,7 @@
 	<li>A fixed charge for using the edge $f_{ij}$</li>
       </ul>
       </p>
-      
+
       <p>
       Moreover, we associate an indicator variable $y_{ij} \in \{0,1\}$ with each edge. If $y_{ij} = 1$ we charge an amount $f_{ij}$
       to allow flow on the edge. If $y_{ij} = 0$, no flow is allowed on the edge and no charge will be made. Therefore, the total cost
@@ -81,7 +182,7 @@
         \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}
       \]
       </p>
-      
+
       <p>
 	Since the maximum flow allowed on an edge is $u_{ij}$ if the edge is open ($y_{ij} = 1$) and $0$ if the edge is closed
 	($y_{ij} = 0$) we have the constraint
@@ -89,7 +190,7 @@
 	0 \leq x_{ij} \leq u_{ij} y_{ij} \quad \forall (i,j) \in E
 	\]
       </p>
-      
+
       <p> We also have 3 types of nodes. There are regular nodes at which flow is conserved
       \[
       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = 0
@@ -112,7 +213,7 @@
             \end{array}\right.
       \]
       </p>
-      
+
       <p> So finally our model becomes
        \[
       \begin{array}{ll}
@@ -124,12 +225,12 @@
       \]
       By solving the optimization problem in the variables $x_{ij}$ and $y_{ij}$ we can compute the optimal flow.
       </p>
-      
+
     <div class="section" id="implementation">
       <h2><a href="#implementation" name="implementation">Implementation</a></h2>
       <p>Below is the full implementation of the model (and the associated data) in
         Gurobi's Python interface:
-	
+
       </p>
       <pre>
 	from gurobipy import *
@@ -143,14 +244,14 @@
 	     (2,5): (2,1,1),
 	     (3,4): (2,1,1),
 	     (3,5): (1,1,1)}
-	
+
 	m = Model()
-	
+
 	x = {} # Flow on each edge
 	y = {} # Binary variable for each edge
 	edgeIn   = { v:[] for v in vertices } # Key: vertex, value: set of edges entering vertex
 	edgeOut  = { v:[] for v in vertices }
-	
+
 	# Add variables
 	for edge in edges:
 	    u = edge[0]
@@ -159,19 +260,19 @@
 	    x[edge] = m.addVar(lb=0, vtype=GRB.CONTINUOUS, name="x" + str(edge) )
 	    edgeIn[v] = edgeIn[v] + [x[edge]]
 	    edgeOut[u] = edgeOut[u] + [x[edge]]
-	
+
 	m.update()
-	
+
 	# Add constraints
 	for v in vertices:
 	    m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) == vertices[v], name="v%d" % v)
-	
+
 	for edge in edges:
 	    m.addConstr(x[edge] <= edges[edge][0]*y[edge], name=str(edge))
-	
+
 	# Set objective
 	m.setObjective(quicksum((edges[edge][1]*x[edge] + edges[edge][2]*y[edge]) for edge in edges), GRB.MINIMIZE)
-	
+
 	m.optimize()
       </pre>
     </div>
@@ -179,14 +280,24 @@
       <h2><a href="#demo" name="demo">Live Demo</a></h2>
       <div id="demoarea">
       </div>
-      <button onclick="compute()">Compute Optimal Flow</button>
+      <button class="pure-button" onclick="compute()">Compute Optimal Flow</button>
     </div>
 
- 
+    <div style="min-height:100px"></div>
+
+<!--[if gt IE 8]><!--><script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script><!--<![endif]-->
+<script src="http://davist11.github.io/jQuery-One-Page-Nav/jquery.nav.js"></script>
+<script>
+  $(document).ready(function() {
+  console.log('calling onePageNav');
+  $('#nav').onePageNav();
+  });
+</script>
+
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="sankey.js"></script>
 <script>
-	
+
 var units = "Units of flow";
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
@@ -202,7 +313,7 @@ var svg = d3.select("#demoarea").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
-    .attr("transform", 
+    .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
 // Set the sankey diagram properties
@@ -258,7 +369,7 @@ graph = {
 // add the link titles
   link.append("title")
         .text(function(d) {
-    		return d.source.name + " to " + 
+    		return d.source.name + " to " +
                 d.target.name + "\n" + format(d.value); });
 
 // add in the nodes
@@ -266,11 +377,11 @@ graph = {
       .data(graph.nodes)
     .enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { 
+      .attr("transform", function(d) {
 		  return "translate(" + d.x + "," + d.y + ")"; })
     .call(d3.behavior.drag()
       .origin(function(d) { return d; })
-      .on("dragstart", function() { 
+      .on("dragstart", function() {
 		  this.parentNode.appendChild(this); })
       .on("drag", dragmove));
 
@@ -286,16 +397,16 @@ graph = {
 		    return d.color = "rgb(0," +(Math.min(Math.round(d.dy)*2, 255))+ ", 0)";
 		  }
 		  else if (id.charAt(0) === "N") { // If it is a normal node, make it blue
-		    return d.color = "rgb(0, 0," +(Math.min(Math.round(d.dy)*2, 255))+ ")"; 
+		    return d.color = "rgb(0, 0," +(Math.min(Math.round(d.dy)*2, 255))+ ")";
 		  }
 		  else { // If it is a demand node, make it red
 		    return d.color = "rgb(" +(Math.min(Math.round(d.dy)*2, 255))+ ", 0, 0)";
 		  }
 		  })
-      .style("stroke", function(d) { 
+      .style("stroke", function(d) {
 		  return d3.rgb(d.color).darker(2); })
     .append("title")
-      .text(function(d) { 
+      .text(function(d) {
 		  return d.name + "\n" + format(d.value); });
 
 // add in the title for the nodes
@@ -312,7 +423,7 @@ graph = {
 
 // the function for moving the nodes
   function dragmove(d) {
-    d3.select(this).attr("transform", 
+    d3.select(this).attr("transform",
         "translate(" + d.x + "," + (
                 d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
             ) + ")");
