@@ -132,7 +132,7 @@ aside {
     <p>
       In this example we'll solve the problem of laying underwater
       cables to collect electricity produced by offshore
-      windmills at the smallest cost.
+      windmills, at the smallest cost.
     </p>
 
     <p>
@@ -144,11 +144,16 @@ aside {
     <p>
       Although your own business may not involve operating windmills, the
       same basic techniques used in this example can be used for other
-      applications like selecting what projects your business should
-      undertake.
+      applications like the planning of communication and transportation
+      networks.
     </p>
     <div class="section" id="problem">
       <h2><a href="#problem" name="problem">Problem Description</a></h2>
+
+    <div style="float:right;">
+        <img src="windfarm.jpg" alt="Offshore Windmill Farm" style="width:200px;">
+    </div>
+
     <p>
       An offshore windmill farm is a collection of wind turbines
       placed in the sea to take advantage of the
@@ -167,46 +172,72 @@ aside {
       windmills back on land.
     </p>
 
+    <aside>An image of an offshore windmill farm in Sheringham, UK.
+    </aside>
+
     <p>
-      A windmill farm is being built off the coast of Denmark. Several
-      windmills have already been built, and there is a power station on
-      the coast where all the electricity needs to be transferred in order
-      to be distributed on the grid. Furthermore, there are stations near
-      the windmills where the power from several windmills can be collected
-      and transferred along a single line of cables to the shore.
+      In our example a windmill farm is being built off the west coast of
+      Denmark. Several windmills have already been built, and there is a power
+      station on the coast where all the electricity needs to be transferred
+      in order to be distributed on the grid. Furthermore, there are stations
+      near the windmills where the power from several windmills can be collected
+      and transferred along a single line of cable to the shore.
     </p>
 
-    <p> Describe the costs related to cable thickness and distance</p>
-
     <p>
-      Fixed Charge Network Flow.
-      Describe problem
-      SET DEMAND TO EXACTLY MATCH SUPPLY (OTHERWISE NO SOLUTION)
+      There are two factors we need to consider when building the cables.
+      Firstly, there is a fixed charge related to laying down the line. This
+      will usually be proportional to the distance between the two stations
+      it connects. Secondly, we need to consider how much current will flow
+      along the line. Indeed, the larger the current, the thicker (and hence
+      more expensive) the cable needs to be.
     </p>
 
     </div>
     <div class="section" id="model">
       <h2><a href="#model" name="model">Mathematical Model</a></h2>
 
-      <p>Model description goes here.</p>
+      <p>
+	The windmill optimization problem we are considering is an
+	instance of a more general problem known
+        as <a href="https://books.google.co.uk/books?id=Idd9CAAAQBAJ">
+	fixed charge network flow</a>. Fixed charge network flow
+	can be applied to a large number of problems in the planning
+	of communication and transport networks for example. We'll
+	describe the mathematical model for this business problem in
+	terms of windmills and underwater cables, but it's important
+	to remember that the techniques used here can be applied to
+	a very large set of business problems.
+      </p>
 
       <p>
-      We consider a network $G = (V,E)$ with $n$ nodes and $m$ edges.
-      With each edge $(i,j) \in E$ we associate:
+      We consider the windmill farm as a network $G = (V,E)$ with
+      windmills and power stations corresponding to the nodes and
+      cables corresponding to the edges. With each edge
+      $(i,j) \in E$ we associate:
       <ul>
-	<li>A flow $x_{ij}$</li>
+	<li>A flow $x_{ij}$ </li>
 	<li>A maximum capacity $u_{ij}$</li>
 	<li>A cost per unit flow $c_{ij}$</li>
 	<li>A fixed charge for using the edge $f_{ij}$</li>
       </ul>
       </p>
+      <p>
+      The flow corresponds to the amount of current we can ship along
+      the cable (which is proportional to the thickness of the cable).
+      The maximum capacity corresponds to the maximum current allowed
+      on a cable (the maximum thickness of the cable). The fixed charge
+      corresponds to the price of laying the cable, which is proportional
+      to the length of the cable.
+      </p>
 
       <p>
-      Moreover, we associate an indicator variable $y_{ij} \in \{0,1\}$
+      We also associate an indicator variable $y_{ij} \in \{0,1\}$
       with each edge. If $y_{ij} = 1$ we charge an amount $f_{ij}$
-      to allow flow on the edge. If $y_{ij} = 0$, no flow is allowed on
-      the edge and no charge will be made. Therefore, the total cost
-      (which we seek to minimize) is given by
+      to allow flow on the edge, i.e. we charge the price $f_{ij}$
+      to build the cable between $i$ and $j$. If $y_{ij} = 0$, no
+      flow is allowed on the edge, so the cable will not be built.
+      Therefore, the total cost (which we seek to minimize) is given by
       \[
         \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}
       \]
@@ -227,17 +258,20 @@ aside {
        \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = 0
        \]
        i.e. the amount flow entering node $i$ is equal to the amount leaving.
+       These correspond to transfer stations in our example.
        There are source or supply nodes
         \[
        \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} > 0
        \]
        i.e. the amount of flow leaving node $i$ is larger than the amount
-       entering. Finally, we have sink or demand nodes
+       entering. These correspond the windmills in our example.
+       Finally, we have sink or demand nodes
         \[
        \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} < 0
        \]
        i.e. the amount of flow leaving node $i$ is smaller than the amount
-       leaving. In summary, we have the constraint
+       leaving. These correspond to the power station where the electricity
+       is collected. In summary, we have the constraint
         \[
        \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \text{where} \quad
  	    \left\{\begin{array}{ll}
@@ -313,6 +347,7 @@ aside {
     </div>
     <div class="section" id="demo">
       <h2><a href="#demo" name="demo">Live Demo</a></h2>
+      Note that we change demand to exactly match supply so problem is feasible.
       <div id="demoarea">
       </div>
       <button class="pure-button" onclick="compute()">Compute Optimal Flow</button>
