@@ -186,7 +186,7 @@ aside {
 
     <p>
       There are two factors we need to consider when building the cables.
-      Firstly, there is a fixed charge related to laying down the line. This
+      Firstly, there is a fixed cost related to laying down the line. This
       will usually be proportional to the distance between the two stations
       it connects. Secondly, we need to consider how much current will flow
       along the line. Indeed, the larger the current, the thicker (and hence
@@ -202,8 +202,8 @@ aside {
 	instance of a more general problem known
         as <a href="https://books.google.co.uk/books?id=Idd9CAAAQBAJ">
 	fixed charge network flow</a>. Fixed charge network flow
-	can be applied to a large number of problems in the planning
-	of communication and transport networks for example. We'll
+	can be applied to a large number of problems, for example in
+	the planning of communication and transport networks. We'll
 	describe the mathematical model for this business problem in
 	terms of windmills and underwater cables, but it's important
 	to remember that the techniques used here can be applied to
@@ -212,7 +212,7 @@ aside {
 
       <p>
       We consider the windmill farm as a network $G = (V,E)$ with
-      windmills and power stations corresponding to the nodes and
+      windmills and power stations corresponding to the nodes, and
       cables corresponding to the edges. With each edge
       $(i,j) \in E$ we associate:
       <ul>
@@ -226,9 +226,9 @@ aside {
       The flow corresponds to the amount of current we can ship along
       the cable (which is proportional to the thickness of the cable).
       The maximum capacity corresponds to the maximum current allowed
-      on a cable (the maximum thickness of the cable). The fixed charge
-      corresponds to the price of laying the cable, which is proportional
-      to the length of the cable.
+      on a cable (which is proportional to the maximum thickness of the
+      cable). The fixed charge corresponds to the price of laying the
+      cable, which is proportional to the length of the cable.
       </p>
 
       <p>
@@ -306,7 +306,7 @@ aside {
 
 	# Vertices and associated source/sink/flow conservation property
 	vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
-	# Capacities and cost. Format is key: edge, value: (capacity, cost per flow, cost to open)
+	# Key: edge, value: (capacity, cost per flow, cost to open)
 	edges = {(0,4): (4,1,1),
 	     (0,3): (2,1,1),
 	     (1,3): (3,1,1),
@@ -318,7 +318,8 @@ aside {
 
 	x = {} # Flow on each edge
 	y = {} # Binary variable for each edge
-	edgeIn   = { v:[] for v in vertices } # Key: vertex, value: set of edges entering vertex
+	# Key: vertex, value: set of edges entering vertex
+	edgeIn   = { v:[] for v in vertices }
 	edgeOut  = { v:[] for v in vertices }
 
 	# Add variables
@@ -347,7 +348,32 @@ aside {
     </div>
     <div class="section" id="demo">
       <h2><a href="#demo" name="demo">Live Demo</a></h2>
-      Note that we change demand to exactly match supply so problem is feasible.
+      <p>
+	Below is a visualization of the example we have discussed.
+      </p>
+      <p>
+	Windmills are represented by:
+	<svg height="20" width="20">
+	  <circle cx="10" cy="10" r="8" stroke="rgb(230,230,230)" stroke-width="3" fill="white" />
+	</svg>
+      </p>
+      <p>
+	Transfer stations are represented by:
+	<svg height="20" width="20">
+	  <circle cx="10" cy="10" r="8" stroke="rgb(100,100,100)" stroke-width="3" fill="rgb(150,150,150)" />
+	</svg>
+      </p>
+      <p>
+	The power station is represented by:
+	<svg height="20" width="20">
+	  <circle cx="10" cy="10" r="8" stroke="#31a354" stroke-width="3" fill="#a1d99b" />
+	</svg>
+      </p>
+      <p>
+	You can click anywhere in the sea to add windmills. Click "Compute Optimal Flow"
+	to display the optimal cable network. Note that the thickness of the lines
+	corresponds to the amount of power transferred.
+      </p>
       <div id="demoarea">
       </div>
       <button class="pure-button" onclick="compute()">Compute Optimal Flow</button>
@@ -478,6 +504,8 @@ function addPoint() {
 }
 
 function redraw() {
+  solutionG.selectAll("line").remove("line");
+
   windmillG.selectAll("circle").remove("circle");
 
   windmillG.selectAll("circle")
@@ -490,6 +518,8 @@ function redraw() {
 	   .attr("fill", "rgb(255,255,255)")
 	   .attr("stroke", "rgb(230,230,230)")
 	   .attr("stroke-width", 2);
+
+  console.log(windmills);
 }
 
 function dist(a,b) {
