@@ -404,8 +404,8 @@ var demands = [[590,170]];
 var transfers = [[370, 120],[446, 336],[207, 252]];
 var supply = 10; // Power produced by one windmill
 var demand = -10; // Power required by demand on land
-var capacity = 10; // Capacity of the wires
-var cost = 100; // cost per flow
+var capacity = 50; // Capacity of the wires => Only 5 windmills per chain
+var cost = 1; // cost per unit flow => Very low
 
 // Graphics
 var svg = d3.select("#demoarea")
