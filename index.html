@@ -621,7 +621,7 @@ function serverResponse(error, data) {
 	       .attr("y1", function(d) { var j = d[0]; return solVertices[j][1]; })
 	       .attr("y2", function(d) { var k = d[1]; return solVertices[k][1]; })
 	       .style("stroke", "white")
-	       .attr("stroke-width", function(d,i) { return Math.round(solWidth[i])/2; })
+	       .attr("stroke-width", function(d,i) { return Math.round(solWidth[i])/4; })
 	       .attr("stroke-opacity", .5);
     }
   }
