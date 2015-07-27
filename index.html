@@ -130,15 +130,15 @@ aside {
         <subtitle>with integer programming and Gurobi</subtitle>
     </div>
     <p>
-      In this example we'll solve the problem of how to lay underwater
-      cables in order to collect the electricity produced by offshore
+      In this example we'll solve the problem of laying underwater
+      cables to collect electricity produced by offshore
       windmills at the smallest cost.
     </p>
 
     <p>
-    We'll construct a mathematical model of the business problem,
-    implement this model in Gurobi's Python interface, and compute and
-    visualize an optimal solution.
+      We'll construct a mathematical model of the business problem,
+      implement this model in Gurobi's Python interface, and compute and
+      visualize an optimal solution.
     </p>
 
     <p>
@@ -149,13 +149,40 @@ aside {
     </p>
     <div class="section" id="problem">
       <h2><a href="#problem" name="problem">Problem Description</a></h2>
-      Problem description goes here
+    <p>
+      An offshore windmill farm is a collection of wind turbines
+      placed in the sea to take advantage of the
+      <a href = "https://en.wikipedia.org/wiki/Offshore_wind_power">
+      stronger winds </a> as compared to the land. The stronger winds
+      allow for a greater electricity production, but this comes at a
+      cost: offshore windmill farms are
+      <a href="http://www.eia.doe.gov/oiaf/aeo/electricity_generation.html">
+      much more expensive</a>.
+    </p>
 
-      <p>
+    <p>
+      In this example we will focus on one aspect of reducing the cost:
+      laying the underwater cables at the smallest cost possible.
+      These cables are necessary to transfer the power produced by the
+      windmills back on land.
+    </p>
+
+    <p>
+      A windmill farm is being built off the coast of Denmark. Several
+      windmills have already been built, and there is a power station on
+      the coast where all the electricity needs to be transferred in order
+      to be distributed on the grid. Furthermore, there are stations near
+      the windmills where the power from several windmills can be collected
+      and transferred along a single line of cables to the shore.
+    </p>
+
+    <p> Describe the costs related to cable thickness and distance</p>
+
+    <p>
       Fixed Charge Network Flow.
       Describe problem
       SET DEMAND TO EXACTLY MATCH SUPPLY (OTHERWISE NO SOLUTION)
-      </p>
+    </p>
 
     </div>
     <div class="section" id="model">
@@ -312,12 +339,12 @@ var vertices = {};
 var windmills = d3.range(2).map(function(d) {
   return [Math.random() * width/2, Math.random() * height];
 });
-var demands = [[570,100], [670, 300]];
-var transfers = [[470, 120], [500, 350]];
+var demands = [[570,100]];
+var transfers = [[370, 120]];
 var supply = 10; // Power produced by one windmill
 var demand = -10; // Power required by demand on land
 var capacity = 10; // Capacity of the wires
-var cost = 50; // cost per flow
+var cost = 100; // cost per flow
 
 // Graphics
 var svg = d3.select("#demoarea")
@@ -437,13 +464,18 @@ function compute() {
   edges = [];
   params = [];
   for (var i = 0; i < nW + nD + nT; i++) {
-    for (var j = i + 1; j < nW + nD + nT; j++) {
-      edges.push([i,j]);
-      var u = []; var v = [];
+    for (var j = 0; j < nW + nD + nT; j++) {
+      if (i !== j) {
+	edges.push([i,j]);
+	var u = []; var v = [];
 
-      if (i < nW) {
-
-	u = windmills[i];
+	if (i < nW) {
+	  u = windmills[i];
+	} else if (i >= nW && i < nW + nD) {
+	  u = demands[i - nW];
+	} else {
+	  u = transfers[i - nW - nD];
+	}
 
 	if (j < nW) {
 	  v = windmills[j];
@@ -453,29 +485,12 @@ function compute() {
 	  v = transfers[j - nW - nD];
 	}
 
-      } else if (i >= nW && i < nW + nD) {
-
-	u = demands[i - nW];
-
-	if (j < nW + nD) {
-	  v = demands[j - nW];
+	if (i >= nW + nD) {
+	  params.push([capacity*5, cost/5, dist(u,v)/10]); // Make edges from transfer have larger capacity
 	} else {
-	  v = transfers[j - nW - nD];
+	  params.push([capacity, cost, dist(u,v)]);
 	}
-
-      } else {
-
-	u = transfers[i - nW - nD];
-	v = transfers[j - nW - nD];
-
       }
-
-      if (i >= nW && i < nW + nD && j >= nW + nD) {
-	params.push([capacity*5, cost, dist(u,v)/10]); // Make edges from transfer to demand cheaper
-      } else {
-	params.push([capacity, cost, dist(u,v)]);
-      }
-
     }
   }
 
