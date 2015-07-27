@@ -3,7 +3,7 @@
 from gurobipy import *
 
 # Flow conservation/sink/source
-vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -2}
+vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
 # Capacities and cost. Format is key: edge, value: (capacity, cost per flow, cost to open)
 edges = {(0,4): (4,1,1),
      (0,3): (2,1,1),
@@ -52,11 +52,7 @@ def optimize(vertices, edges):
 
     # Add constraints
     for v in vertices:
-        if (vertices[v] <= 0):
-            m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) == vertices[v], name="v%d" % v)
-        else:
-            m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) <= vertices[v], name="v%d" % v)
-            m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) >= 0, name="vlb%d" % v)
+        m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) == vertices[v], name="v%d" % v)
 
     for edge in edges:
         m.addConstr(x[edge] <= edges[edge][0]*y[edge], name=str(edge))
@@ -66,10 +62,15 @@ def optimize(vertices, edges):
 
     m.optimize()
 
-    solution = {}
+    solEdges = []
+    solWidth = []
 
     for edge in edges:
-        solution[str(edge)] = x[edge].X
+        if (y[edge].X > .5): # if edge was opened
+            solEdges.append([edge[0], edge[1]])
+            solWidth.append(x[edge].X)
+
+    solution = [solEdges, solWidth]
 
     return solution
 
