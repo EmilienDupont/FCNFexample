@@ -374,6 +374,18 @@ aside {
 	to display the optimal cable network. Note that the thickness of the lines
 	corresponds to the amount of power transferred.
       </p>
+      <p>
+	To increase the cost relating to the thickness of the cable, use the slider.
+	Changing this value while keeping the fixed charge constant will alter the
+	tradeoff between building a few long cables or many short cables.
+      </p>
+      <input type="range" min = 1 max = 50 step = 1 id="cost" value="1" oninput="outputUpdate(value)" class="slider-width">
+      <output for=cost id=costDisplay>1</output>
+      <script>
+      function outputUpdate(value) {
+        document.querySelector('#costDisplay').value = value;
+      }
+      </script>
       <div id="demoarea">
       </div>
       <button class="pure-button" onclick="compute()">Compute Optimal Flow</button>
@@ -403,7 +415,7 @@ var windmills = d3.range(10).map(function(d) {
 var demands = [[590,170]];
 var transfers = [[370, 120],[446, 336],[207, 252]];
 var supply = 10; // Power produced by one windmill
-var demand = -10; // Power required by demand on land
+var demand = -10; // Initial power required by demand on land (changes when you add windmills)
 var capacity = 50; // Capacity of the wires => Only 5 windmills per chain
 var cost = 1; // cost per unit flow => Very low
 
@@ -529,6 +541,7 @@ function dist(a,b) {
 }
 
 function compute() {
+  cost = parseFloat(document.getElementById("cost").value);
   vertices = {};
   nW = windmills.length;
   nD = demands.length;
@@ -569,7 +582,7 @@ function compute() {
 	}
 
 	if (i >= nW + nD) {
-	  params.push([capacity*5, cost/5, dist(u,v)/10]); // Make edges from transfer have larger capacity
+	  params.push([capacity*5, cost, dist(u,v)/5]); // Make edges from transfer have larger capacity and cheaper fixed charge
 	} else {
 	  params.push([capacity, cost, dist(u,v)]);
 	}
