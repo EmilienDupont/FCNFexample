@@ -371,11 +371,11 @@ aside {
 var width = 800;
 var height = 500;
 var vertices = {};
-var windmills = d3.range(2).map(function(d) {
+var windmills = d3.range(10).map(function(d) {
   return [Math.random() * width/2, Math.random() * height];
 });
-var demands = [[570,100]];
-var transfers = [[370, 120]];
+var demands = [[590,170]];
+var transfers = [[370, 120],[446, 336],[207, 252]];
 var supply = 10; // Power produced by one windmill
 var demand = -10; // Power required by demand on land
 var capacity = 10; // Capacity of the wires
@@ -389,6 +389,8 @@ var svg = d3.select("#demoarea")
 
 var backgroundG = svg.append("g");
 
+var mapG = svg.append("g");
+
 var solutionG = svg.append("g");
 
 var transferG = svg.append("g");
@@ -397,22 +399,32 @@ var windmillG = svg.append("g");
 
 var demandG = svg.append("g");
 
-
-
 // Add background
 backgroundG.append("rect")
 	   .attr("x", 0)
 	   .attr("y", 0)
 	   .attr("width", width)
 	   .attr("height", height)
-	   .attr("fill", "#addd8e");
-
-backgroundG.append("circle")
-	   .attr("cx", 0)
-	   .attr("cy", height + 100)
-	   .attr("r", 700)
-	   .attr("fill", "blue")
+	   .attr("fill", "#9ecae1")
 	   .on("mousedown", addPoint);
+
+// Add map
+var projection = d3.geo.albers()
+    .center([0, 55.4])
+    .rotate([-7.5, 0])
+    .parallels([50, 60])
+    .scale(30000)
+    .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+d3.json("denmark.json", function(error, uk) {
+  mapG.append("path")
+      .datum(topojson.feature(uk, uk.objects.denmark))
+      .attr("d", path)
+      .attr("fill", "#f7fcb9");
+});
 
 // Add demand nodes
 demandG.selectAll("circle")
@@ -421,18 +433,22 @@ demandG.selectAll("circle")
        .append("circle")
        .attr("cx", function(d) { return d[0]; })
        .attr("cy", function(d) { return d[1]; })
-       .attr("r", 5)
-       .attr("fill", "brown");
+       .attr("r", 15)
+       .attr("fill", "#a1d99b")
+       .attr("stroke", "#31a354")
+       .attr("stroke-width", 5);
 
-// Add demand nodes
+// Add transfer nodes
 transferG.selectAll("circle")
        .data(transfers)
        .enter()
        .append("circle")
        .attr("cx", function(d) { return d[0]; })
        .attr("cy", function(d) { return d[1]; })
-       .attr("r", 5)
-       .attr("fill", "gray");
+       .attr("r", 12)
+       .attr("fill", "rgb(150,150,150)")
+       .attr("stroke", "rgb(100,100,100)")
+       .attr("stroke-width", 5);
 
 redraw();
 
@@ -471,7 +487,9 @@ function redraw() {
 	   .attr("cx", function(d) { return d[0]; })
 	   .attr("cy", function(d) { return d[1]; })
 	   .attr("r", 5)
-	   .attr("fill", "white");
+	   .attr("fill", "rgb(255,255,255)")
+	   .attr("stroke", "rgb(230,230,230)")
+	   .attr("stroke-width", 2);
 }
 
 function dist(a,b) {
@@ -560,7 +578,7 @@ function serverResponse(error, data) {
 	       .attr("y1", function(d) { var j = d[0]; return solVertices[j][1]; })
 	       .attr("y2", function(d) { var k = d[1]; return solVertices[k][1]; })
 	       .style("stroke", "white")
-	       .attr("stroke-width", function(d,i) { return Math.round(solWidth[i]); })
+	       .attr("stroke-width", function(d,i) { return Math.round(solWidth[i])/2; })
 	       .attr("stroke-opacity", .5);
     }
   }
