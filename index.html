@@ -11,111 +11,7 @@
 
                      });
 </script>
-<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
-<style>
-
-@import url(http://fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i|PT+Sans|PT+Sans:b);
-@import url(http://fonts.googleapis.com/css?family=Lato);
-html {
-   min-width: 1040px;
-}
-
-body {
-   background: #fcfcfa;
-   color: #333;
-   font-family: "PT Serif", serif;
-   /*margin: 0 1em 4em auto;*/
-   position: relative;
-   width: 960px;
-   left: 13em;
-}
-
-h1, h2, h3, h4 { font-family: "Lato", "PT Serif", serif; color: #000; text-rendering: optimizeLegibility; }
-
-h1 {
-  font-size: 64px;
-  line-height: 73px;
-  font-weight: 900;
-  margin-top: 0.67em;
-  margin-right: 0;
-  margin-bottom: 0;
-  margin-left: 0;
-}
-
-h2 {
-   margin-top: 2em;
-}
-
-subtitle {
-   display:block;
-   font-family: "PT Serif", serif;
-   font-size: 32px;
-   font-style: italic;
-   font-weight: 100;
-}
-
-p {
-  line-height: 150%;
-  width: 720px;
-}
-
-a {
-  color: steelblue;
-  cursor: auto;
-}
-
-a:not(:hover) {
-   text-decoration: none;
-}
-
-pre {
-   border-left: solid 2px #ccc;
-   padding-left: 18px;
-   margin: 2em 0 2em -20px;
-}
-
-aside {
-   font-size: small;
-   right: 0;
-   position: absolute;
-   width: 180px;
-}
-
-#nav {
-        left: 5px;
-        font-family: "Lato", serif;
-        font-weight: 700;
-        list-style: none;
-        margin: 0;
-        position: fixed;
-        top: 10px;
-        box-sizing: border-box;
-}
-
-
-#nav li {
-        margin-bottom: 0px;
-}
-
-#nav a {
-        color: #333;
-        display: block;
-        font-size: 14px;
-        border-left: 3px solid #fcfcfa;
-        padding: 5px 10px;
-        text-decoration: none;
-}
-
-#nav a:hover {
-   border-left: 3px solid steelblue;
-}
-
-#nav .current a {
-   border-left: 3px solid steelblue;
-}
-
-
-</style>
+<link rel="stylesheet" href="http://examples.gurobi.com/base.css">
 <body>
   <ul id="nav">
     <li class="current"><a href="#intro">Intro</a></li>
@@ -124,8 +20,8 @@ aside {
     <li><a href="#implementation">Implementation</a></li>
     <li><a href="#demo">Live Demo</a></li>
   </ul>
-  <div id="container">
-    <div class="section" id="intro">
+  <div id="example_container">
+    <div class="example_section" id="intro">
       <h1>Offshore Windmill Farms</h1>
         <subtitle>with integer programming and Gurobi</subtitle>
     </div>
@@ -147,7 +43,7 @@ aside {
       applications like the planning of communication and transportation
       networks.
     </p>
-    <div class="section" id="problem">
+    <div class="example_section" id="problem">
       <h2><a href="#problem" name="problem">Problem Description</a></h2>
 
     <div style="float:right;">
@@ -196,7 +92,7 @@ aside {
     </p>
 
     </div>
-    <div class="section" id="model">
+    <div class="example_section" id="model">
       <h2><a href="#model" name="model">Mathematical Model</a></h2>
 
       <p>
@@ -297,58 +193,58 @@ aside {
       $y_{ij}$ we can compute the optimal flow.
       </p>
 
-    <div class="section" id="implementation">
+    <div class="example_section" id="implementation">
       <h2><a href="#implementation" name="implementation">Implementation</a></h2>
       <p>Below is the full implementation of the model (and the associated data) in
         Gurobi's Python interface:
 
       </p>
-      <pre>
-	from gurobipy import *
+<examplecode>
+from gurobipy import *
 
-	# Vertices and associated source/sink/flow conservation property
-	vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
-	# Key: edge, value: (capacity, cost per flow, cost to open)
-	edges = {(0,4): (4,1,1),
-	     (0,3): (2,1,1),
-	     (1,3): (3,1,1),
-	     (2,5): (2,1,1),
-	     (3,4): (2,1,1),
-	     (3,5): (1,1,1)}
+# Vertices and associated source/sink/flow conservation property
+vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
+# Key: edge, value: (capacity, cost per flow, cost to open)
+edges = {(0,4): (4,1,1),
+     (0,3): (2,1,1),
+     (1,3): (3,1,1),
+     (2,5): (2,1,1),
+     (3,4): (2,1,1),
+     (3,5): (1,1,1)}
 
-	m = Model()
+m = Model()
 
-	x = {} # Flow on each edge
-	y = {} # Binary variable for each edge
-	# Key: vertex, value: set of edges entering vertex
-	edgeIn   = { v:[] for v in vertices }
-	edgeOut  = { v:[] for v in vertices }
+x = {} # Flow on each edge
+y = {} # Binary variable for each edge
+# Key: vertex, value: set of edges entering vertex
+edgeIn   = { v:[] for v in vertices }
+edgeOut  = { v:[] for v in vertices }
 
-	# Add variables
-	for edge in edges:
-	    u = edge[0]
-	    v = edge[1]
-	    y[edge] = m.addVar(vtype=GRB.BINARY, name="y" + str(edge))
-	    x[edge] = m.addVar(lb=0, vtype=GRB.CONTINUOUS, name="x" + str(edge) )
-	    edgeIn[v] = edgeIn[v] + [x[edge]]
-	    edgeOut[u] = edgeOut[u] + [x[edge]]
+# Add variables
+for edge in edges:
+  u = edge[0]
+  v = edge[1]
+  y[edge] = m.addVar(vtype=GRB.BINARY, name="y" + str(edge))
+  x[edge] = m.addVar(lb=0, vtype=GRB.CONTINUOUS, name="x" + str(edge) )
+  edgeIn[v] = edgeIn[v] + [x[edge]]
+  edgeOut[u] = edgeOut[u] + [x[edge]]
 
-	m.update()
+m.update()
 
-	# Add constraints
-	for v in vertices:
-	    m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) == vertices[v], name="v%d" % v)
+# Add constraints
+for v in vertices:
+  m.addConstr(quicksum(edgeOut[v]) - quicksum(edgeIn[v]) == vertices[v], name="v%d" % v)
 
-	for edge in edges:
-	    m.addConstr(x[edge] <= edges[edge][0]*y[edge], name=str(edge))
+for edge in edges:
+  m.addConstr(x[edge] &lt;= edges[edge][0]*y[edge], name=str(edge))
 
-	# Set objective
-	m.setObjective(quicksum((edges[edge][1]*x[edge] + edges[edge][2]*y[edge]) for edge in edges), GRB.MINIMIZE)
+# Set objective
+m.setObjective(quicksum((edges[edge][1]*x[edge] + edges[edge][2]*y[edge]) for edge in edges))
 
-	m.optimize()
-      </pre>
+m.optimize()
+      </examplecode>
     </div>
-    <div class="section" id="demo">
+    <div class="example_section" id="demo">
       <h2><a href="#demo" name="demo">Live Demo</a></h2>
       <p>
 	Below is a visualization of the example we have discussed.
@@ -592,7 +488,7 @@ function compute() {
     }
   }
 
-  d3.json('/FCNFexample')
+  d3.json('FCNF.py')
     .header('Content-Type', 'application/json')
     .post(JSON.stringify({'vertices': vertices,
                           'edges': edges,

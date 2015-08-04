@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 from gurobipy import *
 
 # Flow conservation/sink/source
@@ -24,13 +25,10 @@ def transform(vertices, edges, params):
     for v in vertices:
         newVertices[int(v)] = vertices[v]
 
-    print 'In transform!'
-    print newEdges
-    print newVertices
     solution = optimize(newVertices, newEdges)
     return solution
 
-def optimize(vertices, edges):
+def optimize(vertices, edges, output=False):
 
     m = Model()
 
@@ -60,6 +58,9 @@ def optimize(vertices, edges):
     # Set objective
     m.setObjective(quicksum((edges[edge][1]*x[edge] + edges[edge][2]*y[edge]) for edge in edges), GRB.MINIMIZE)
 
+    if not output:
+        m.params.OutputFlag = 0;
+
     m.optimize()
 
     solEdges = []
@@ -74,4 +75,15 @@ def optimize(vertices, edges):
 
     return solution
 
-print optimize(vertices,edges)
+def handleoptimize(jsdict):
+    if 'vertices' and 'edges' and 'params' in jsdict:
+        solution = transform(jsdict['vertices'], jsdict['edges'], jsdict['params'])
+        return {'solution': solution }
+
+
+if __name__ == '__main__':
+    import json
+    jsdict = json.load(sys.stdin)
+    jsdict = handleoptimize(jsdict)
+    print 'Content-Type: application/json\n\n'
+    print json.dumps(jsdict)
