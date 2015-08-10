@@ -37,8 +37,6 @@ def optimize(vertices, edges, output=False):
 
     m = Model()
 
-    m.setParam('TimeLimit', 10)
-
     x = {} # Flow on each edge
     y = {} # Binary variable for each edge
     edgeIn   = { v:[] for v in vertices }
@@ -67,6 +65,9 @@ def optimize(vertices, edges, output=False):
 
     if not output:
         m.params.OutputFlag = 0;
+
+
+    m.setParam('TimeLimit', 10)
 
     output = StringIO.StringIO()
     m.__output = output
