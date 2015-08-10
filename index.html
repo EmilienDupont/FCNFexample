@@ -557,6 +557,10 @@ function serverResponse(error, data) {
     if ('solution' in data) {
       // Import solution and put it into correct format
       var solution = data['solution'];
+      if (solution[0] === "error") {
+	alert("10 second solve time limit exceeded. Reduce the number of windmills.");
+	return;
+      }
       console.log('solution', solution);
       solEdges = solution[0];
       solWidth = solution[1];

@@ -37,6 +37,8 @@ def optimize(vertices, edges, output=False):
 
     m = Model()
 
+    m.setParam('TimeLimit', 10)
+
     x = {} # Flow on each edge
     y = {} # Binary variable for each edge
     edgeIn   = { v:[] for v in vertices }
@@ -70,6 +72,9 @@ def optimize(vertices, edges, output=False):
     m.__output = output
 
     m.optimize(mycallback)
+
+    if (m.status != 2):
+        return ["error"]
 
     solEdges = []
     solWidth = []
