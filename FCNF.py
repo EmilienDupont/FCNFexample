@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys
 from gurobipy import *
+import StringIO
+import sys
 
 # Flow conservation/sink/source
 vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
@@ -12,6 +13,10 @@ edges = {(0,4): (4,1,1),
      (2,5): (2,1,1),
      (3,4): (2,1,1),
      (3,5): (1,1,1)}
+
+def mycallback(model, where):
+    if where == GRB.callback.MESSAGE:
+        print >>model.__output, model.cbGet(GRB.callback.MSG_STRING),
 
 def transform(vertices, edges, params):
     newEdges = {}
@@ -61,7 +66,10 @@ def optimize(vertices, edges, output=False):
     if not output:
         m.params.OutputFlag = 0;
 
-    m.optimize()
+    output = StringIO.StringIO()
+    m.__output = output
+
+    m.optimize(mycallback)
 
     solEdges = []
     solWidth = []
@@ -71,7 +79,7 @@ def optimize(vertices, edges, output=False):
             solEdges.append([edge[0], edge[1]])
             solWidth.append(x[edge].X)
 
-    solution = [solEdges, solWidth]
+    solution = [solEdges, solWidth, output.getvalue()]
 
     return solution
 
