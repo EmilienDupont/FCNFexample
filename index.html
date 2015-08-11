@@ -422,24 +422,24 @@ transferG.selectAll("circle")
 
 redraw();
 
-function inArray (array, point) {
+function indexArray (array, point) {
   var p0 = point[0];
   var p1 = point[1];
-  var bool = false;
+  var idx = -1;
   for (i = 0; i < array.length; i++) {
     pointprime = array[i];
     if (p0 === pointprime[0] && p1 === pointprime[1]) {
-      bool = true;
+      idx = i;
       break;
     }
   }
-  return bool;
+  return idx;
 }
 
 function addPoint() {
   var point = d3.mouse(this);
   console.log(point);
-  if (inArray(windmills, point)) {
+  if (indexArray(windmills, point) > -1) {
     console.log('point already exists!');
     return;
   }
@@ -461,9 +461,21 @@ function redraw() {
 	   .attr("r", 5)
 	   .attr("fill", "rgb(255,255,255)")
 	   .attr("stroke", "rgb(230,230,230)")
-	   .attr("stroke-width", 2);
+	   .attr("stroke-width", 2)
+	   .on("mousedown", removePoint);
 
   console.log(windmills);
+}
+
+function removePoint() {
+  var point = [];
+  point.push(parseFloat(d3.select(this).attr("cx")));
+  point.push(parseFloat(d3.select(this).attr("cy")));
+  var idx = indexArray(windmills, point);
+  if (idx > -1) {
+    windmills.splice(idx, 1);
+    redraw();
+  }
 }
 
 function dist(a,b) {
