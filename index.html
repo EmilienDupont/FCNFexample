@@ -337,9 +337,10 @@ d3.select('#logfile').style("display", "none");
 var width = 800;
 var height = 500;
 var vertices = {};
-var windmills = d3.range(10).map(function(d) {
-  return [Math.random() * width/2, Math.random() * height];
-});
+var windmills =  [[302.40625, 293.71875], [302.40625, 211.71875], [184.40625, 332.71875],
+		  [210.40625, 195.71875], [290.40625, 92.71875], [148.40625, 111.71875],
+		  [239.40625, 56.71875], [387.40625, 234.71875], [328.40625, 369.71875],
+		  [249.40625, 397.71875], [468.40625, 413.71875], [391.40625, 452.71875]];
 var demands = [[590,170]];
 var transfers = [[370, 120],[446, 336],[207, 252]];
 var supply = 10; // Power produced by one windmill
@@ -485,6 +486,12 @@ function dist(a,b) {
 }
 
 function compute() {
+
+  if (windmills.length < 1) {
+    alert("Add windmills to compute the optimal cable layout!");
+    return;
+  }
+
   // Show loading screen
   spinnerG.append("rect")
           .attr("x", 0).attr("y", 0)
