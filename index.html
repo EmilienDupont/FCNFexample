@@ -282,11 +282,11 @@ m.optimize()
 	cables or many short cables. Since the charge for building a cable is
 	proportional to its length, you can vary the price per meter of cable:
       </p>
-      <input type="range" min = .05 max = 1 step = 0.05 id="cost" value="1" oninput="outputUpdate(value)" class="slider-width">
-      <output for=cost id=costDisplay>5000</output> dollars per meter
+      <input type="range" min = .05 max = 0.55 step = 0.1 id="cost" value="0.55" oninput="outputUpdate(value)" class="slider-width">
+      <output for=cost id=costDisplay>5500</output> dollars per meter
       <script>
       function outputUpdate(value) {
-        document.querySelector('#costDisplay').value = value*5000;
+        document.querySelector('#costDisplay').value = value*10000;
       }
       </script>
       <div id="demoarea">
