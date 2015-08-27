@@ -15,12 +15,3 @@ An example of using Gurobi to compute Fixed Charge Network Flow
 3. Add/remove windmills by clicking the screen
 
 4. Click "Compute" to find the optimal cable layout.
-
-
-# Performing an optimization
-
-To just solve the gurobi model (without running a web server) do:
-
-```
-make test
-```
