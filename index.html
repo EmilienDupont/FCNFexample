@@ -588,9 +588,9 @@ function serverResponse(error, data) {
   console.log('data', data);
 
   // Remove loading screen
-          spinnerG.selectAll("rect").remove("rect");
-          spinnerG.selectAll("text").remove("text");
-          spinner.stop();
+  spinnerG.selectAll("rect").remove("rect");
+  spinnerG.selectAll("text").remove("text");
+  spinner.stop();
 
   if (!error) {
     if ('solution' in data) {
