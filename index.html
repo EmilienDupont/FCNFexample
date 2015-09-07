@@ -27,13 +27,13 @@ a:hover.screenshot {
   </ul>
   <div id="example_container">
     <div class="example_section" id="intro">
-      <h1>Offshore Windmill Farms</h1>
+      <h1>Offshore Wind Farms</h1>
         <subtitle>with integer programming and Gurobi</subtitle>
     </div>
     <p>
       In this example we'll solve the problem of how to minimize the cost
-      of laying underwater cables to collect electricity produced by offshore
-      windmills.
+      of laying underwater cables to collect electricity produced by an
+      offshore wind farm.
     </p>
 
     <p>
@@ -43,10 +43,10 @@ a:hover.screenshot {
     </p>
 
     <p>
-      Although your own business may not involve operating windmills, the
-      same basic techniques used in this example can be used for other
-      applications like the planning of communication and transportation
-      networks.
+      Although your own business may not involve operating a wind farm,
+      the same basic techniques used in this example can be used for
+      other applications like the planning of communication and
+      transportation networks.
     </p>
 
     <h3>
@@ -63,47 +63,51 @@ a:hover.screenshot {
 
     <div style="float:right;">
       <a href="https://en.wikipedia.org/wiki/Sheringham_Shoal_Offshore_Wind_Farm">
-        <img src="windfarm.jpg" alt="Offshore Windmill Farm" style="width:200px;">
+        <img src="windfarm.jpg" alt="Offshore Wind Farm" style="width:200px;">
       </a>
     </div>
 
     <p>
-      An offshore windmill farm is a collection of wind turbines
-      placed in the sea to take advantage of the
+      An offshore wind farm is a collection of wind turbines
+      placed at sea to take advantage of the
       <a href = "https://en.wikipedia.org/wiki/Offshore_wind_power">
-      stronger winds </a> as compared to the land. The stronger winds
-      allow for a greater electricity production, but this comes at a
-      cost: offshore windmill farms are
+      strong offshore winds</a>. These strong winds produce more
+      electricity, but offshore wind farms are
       <a href="http://www.eia.doe.gov/oiaf/aeo/electricity_generation.html">
-      much more expensive</a>.
+      more expensive</a> to install and operate, than those on land.
     </p>
 
     <p>
-      In this example we will focus on one aspect of reducing the cost:
-      laying the underwater cables at the smallest cost possible.
-      These cables are necessary to transfer the power produced by the
-      windmills back on land.
+      We will use integer programming to reduce part of the cost of
+      building an offshore wind farm. We will compute a plan for how
+      to lay the underwater cables that connect the turbines.  These
+      cables are necessary to transfer the power produced by the
+      turbines to land. The plan we compute will minimize the
+      cost to install the underwater cables, while ensuring that each
+      turbine is connected to the shore and each cable has sufficent
+      capacity to handle the electrical current generated.
     </p>
 
-    <aside>An image of an offshore windmill farm in Sheringham, UK. <span style="font-size: 10px">Source: <a href="https://en.wikipedia.org/wiki/Sheringham_Shoal_Offshore_Wind_Farm#/media/File:Sheringham_Shoal_Wind_Farm_2012.jpg">Harald Pettersen</a> - <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.en">CC BY-SA 3.0</a></span>
+    <aside>An image of an offshore wind farm in the UK. <span style="font-size: 10px">Source: <a href="https://en.wikipedia.org/wiki/Sheringham_Shoal_Offshore_Wind_Farm#/media/File:Sheringham_Shoal_Wind_Farm_2012.jpg">Harald Pettersen</a> - <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.en">CC BY-SA 3.0</a></span>
     </aside>
 
     <p>
-      In our example, a windmill farm is being built off the west coast of
-      Denmark. Several windmills have already been built, and there is a power
-      station on the coast where all the electricity needs to be transferred
-      in order to be distributed on the grid. Furthermore, there are stations
-      near the windmills where the power from several windmills can be collected
-      and transferred along a single line of cable to the shore.
+      In our example, a wind farm is being built off the west coast of
+      Denmark. There is a power station on the coast where all the
+      electricity must be transferred to be distributed to the
+      electric grid. There are also transfer stations in the wind farm
+      where the power from several turbines can be collected and
+      transferred along a single cable to the shore.
     </p>
 
     <p>
-      There are two factors we need to consider when building the cables.
-      Firstly, there is a fixed cost related to laying down the wire. This
-      will usually be proportional to the distance between the two stations
-      it connects. Secondly, we need to consider how much current will flow
-      along the wire. Indeed, the larger the current, the thicker (and hence
-      more expensive) the cable will be.
+      There are two factors we must consider when installing the
+      cables.  First, there is a fixed cost to lay a cable on the sea
+      floor. This cost is proportional to the distance between the two
+      stations the cable connects. Second, we must consider how much
+      current will flow through the cables. Connections that
+      carry large currents need thick cables. Thick cables are more
+      expensive than thin cables.
     </p>
 
     </div>
@@ -111,102 +115,132 @@ a:hover.screenshot {
       <h2><a href="#model" name="model">Mathematical Model</a></h2>
 
       <p>
-	The windmill optimization problem we are considering is an
-	instance of a more general problem known
-        as <a href="https://books.google.co.uk/books?id=Idd9CAAAQBAJ">
-	fixed charge network flow</a>. Fixed charge network flow
-	can be applied to a large number of problems, for example in
-	the planning of communication and transport networks. We'll
-	describe the mathematical model for this business problem in
-	terms of windmills and underwater cables, but it's important
-	to remember that the techniques used here can be applied to
-	a very large set of business problems.
+	The wind farm optimization model is an instance of a more
+	general optimization model known
+	as <a href="https://books.google.co.uk/books?id=Idd9CAAAQBAJ">
+	fixed charge network flow</a>. Fixed charge network flow can
+	be applied to a large number of business problems, for example
+	in the planning of communication and transport networks. We'll
+	describe the mathematical model for this problem in
+	terms of turbines and underwater cables, but it's important
+	to remember that the techniques used here can be applied to a
+	very large set of business problems.
       </p>
 
       <p>
-      We consider the windmill farm as a network $G = (V,E)$ with
-      windmills and power stations corresponding to the nodes, and
-      cables corresponding to the edges. With each edge
-      $(i,j) \in E$ we associate:
+      We represent the wind farm as a graph $G(V,E)$ of vertices
+      $V$ and edges $E$. The turbines, transfer stations, and power stations
+      are vertices in the graph. The set of <b>potential</b> cables are
+      the edges of the graph.
+      </p>
+
+      <p> The goal of our optimization model is decide which of these
+        potential edges in the graph should be used. Or equivalently,
+        which cables should be laid to connect the wind farm power
+        network.
+      </p>
+
+      For each edge $(i,j) \in E$ we associate the following quantites:
       <ul>
-	<li>A flow $x_{ij}$ </li>
-	<li>A maximum capacity $u_{ij}$</li>
-	<li>A cost per unit flow $c_{ij}$</li>
-	<li>A fixed charge for using the edge $f_{ij}$</li>
+	<li>a flow: $x_{ij}$</li>
+	<li>a maximum capacity: $u_{ij}$</li>
+	<li>a cost per unit flow: $c_{ij}$</li>
+	<li>a fixed cost: $f_{ij}$.</li>
       </ul>
       </p>
+
       <p>
-      The flow corresponds to the amount of current we can ship along
-      the cable (which is proportional to the thickness of the cable).
-      The maximum capacity corresponds to the maximum current allowed
-      on a cable (which is proportional to the maximum thickness of the
-      cable). The fixed charge corresponds to the price of laying the
-      cable, which is proportional to the length of the cable.
+      The flow is the amount of current flowing through the cable. The
+      maximum capacity is the maximum current a cable can handle. The
+      cost per unit flow, is the price we must pay to increase the
+      thickness of the cable to handle an increase in current. The
+      fixed cost is the price to lay the cable.
       </p>
 
       <p>
-      We also associate an indicator variable $y_{ij} \in \{0,1\}$
-      with each edge. If $y_{ij} = 1$ we charge an amount $f_{ij}$
-      to allow flow on the edge, i.e. we charge the price $f_{ij}$
-      to build the cable between $i$ and $j$. If $y_{ij} = 0$, no
-      flow is allowed on the edge, so the cable will not be built.
-      Therefore, the total cost (which we seek to minimize) is given by
+      We also define a variable $y_{ij}$ on each edge, such
+      that
       \[
-        \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}
+      y_{ij} = \begin{cases} 1 & \text{if we use edge $(i,j)$} \\
+                             0 & \text{otherwise.}
+               \end{cases}
       \]
       </p>
 
+      <p> For each vertex $i$ in the graph we define $s_i$ to be
+        the power supplied at that vertex. Since turbines supply
+        power they are sources with $s_i > 0$. Transfer
+        stations do not supply or remove power from the network
+        so they have $s_i = 0$. The power station on the
+        coast is a sink that remove all power from the
+        wind farm so it has $s_i &lt; 0$.
       <p>
-	Since the maximum flow allowed on an edge is $u_{ij}$ if the edge
-	is open ($y_{ij} = 1$), and $0$ if the edge is closed
-	($y_{ij} = 0$) we have the constraint
-	\[
-	0 \leq x_{ij} \leq u_{ij} y_{ij} \quad \forall (i,j) \in E
-	\]
+
+
+      <p> With these quanities defined we now state the optimization model:
+       \[
+       \begin{align*}
+       \mathrm{minimize} & {\displaystyle \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}} \\
+       \mathrm{subject\ to} & {\displaystyle
+                            \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = s_i} && \forall i \in V \label{flow} \tag{1}\\
+                         & 0 \leq x_{ij} \leq u_{ij} y_{ij}  && \forall (i,j) \in E \label{cap} \tag{2}\\
+                         & y_{ij} \in \{0,1\} && \forall (i, j) \in E.
+       \end{align*}
+       \]
+        We now discuss each part of the model in detail.
       </p>
 
-      <p> We also have 3 types of nodes. There are regular nodes at which
-      flow is conserved
-       \[
-       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = 0
-       \]
-       i.e. the amount flow entering node $i$ is equal to the amount leaving.
-       These correspond to transfer stations in our example.
-       There are source or supply nodes
-        \[
-       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} > 0
-       \]
-       i.e. the amount of flow leaving node $i$ is larger than the amount
-       entering. These correspond the windmills in our example.
-       Finally, we have sink or demand nodes
-        \[
-       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} &lt; 0
-       \]
-       i.e. the amount of flow leaving node $i$ is smaller than the amount
-       leaving. These correspond to the power station where the electricity
-       is collected. In summary, we have the constraint
-        \[
-       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \text{where} \quad
- 	    \left\{\begin{array}{ll}
-              b_i > 0 & \text{Source node}\\
-              b_i = 0 & \text{Regular node}\\
-              b_i &lt; 0 & \text{Sink node}
-             \end{array}\right.
-       \]
-       </p>
 
-      <p> So finally our model becomes
-       \[
-       \begin{array}{ll}
-       \text{minimize} & {\displaystyle \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}} \\
-       \text{subject to} & {\displaystyle
-                            \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i) \in E} x_{ji} = b_i \quad \forall i \in V} \\
-                         & 0 \leq x_{ij} \leq u_{ij} y_{ij} \quad \forall (i,j) \in E \\
-                         & y_{ij} \in \{0,1\}
-       \end{array}
-       \]
-      By solving the optimization problem in the variables $x_{ij}$ and
-      $y_{ij}$ we can compute the optimal cable layout.
+      <p>
+      The objective that we seek to minimize is given by
+      \[
+        \sum_{(i,j) \in E} c_{ij} x_{ij} + \sum_{(i,j) \in E} f_{ij} y_{ij}.
+      \]
+      This is the total cost to install the cables. The term on the left is
+      the variable costs (i.e. those that vary according to the current in the
+      cable). The term on right is the fixed cost to install the cable.
+      </p>
+
+      <p>
+      If $y_{ij} = 1$, meaning that we decide to install a cable
+      between nodes $i$ and $j$, then we pay a fixed cost $f_{ij}$. We
+      also pay a cost $c_{ij} x_{ij}$ porportional to the amount of
+      current that flows between nodes $i$ and $j$. This models the
+      fact that cables that carry more current must be thicker (and
+      thus more expensive).
+      </p>
+
+      <p>
+      Constraints \eqref{cap} enforces the limits on the maximum
+      current capacity of each cable. If we install a cable between
+      nodes $i$ and $j$, then $y_{ij} = 1$, and the flow $x_{ij}$ on
+      that cable must statisfy
+
+      \[
+      0 \le x_{ij} \le u_{ij}.
+      \]
+
+      If we don't install a cable between nodes $i$ and $j$, than
+      $y_{ij} = 0$, and the flow $x_{ij} = 0$. For a cable that is not
+      installed, both $x_{ij}$ and $y_{ij}$ are zero, meaning that
+      this cable does not contribute to the cost in the objective.
+      </p>
+
+      <p>
+      Constraints \eqref{flow} enforce conservation of current in the
+      network. Each
+      constraint is the difference of two terms:
+      \[
+       \sum_{(i,j) \in E} x_{ij} - \sum_{(j,i)} x_{ji} = s_i
+      \]
+      The term on the left is the sum of the currents flowing out of node $i$.
+      The term on the right is the sum of the current flowing into node $i$.
+      Their difference is the supply $s_i$ at node $i$.
+      </p>
+
+      <p>
+      When we solve the optimization problem in the variables $x_{ij}$ and
+      $y_{ij}$ we compute the optimal cable layout.
       </p>
 
     <div class="example_section" id="implementation">
@@ -218,21 +252,23 @@ a:hover.screenshot {
 <examplecode>
 from gurobipy import *
 
-# Vertices and associated source/sink/flow conservation property
+# Vertices and associated supply
 vertices = {0: 4, 1: 3, 2: 2, 3: 0, 4: -6, 5: -3}
-# Key: edge, value: (capacity, cost per flow, cost to open)
+
+# Dict key: edge, value: (capacity, cost per flow, fixed cost)
 edges = {(0,4): (4,1,1),
-     (0,3): (2,1,1),
-     (1,3): (3,1,1),
-     (2,5): (2,1,1),
-     (3,4): (2,1,1),
-     (3,5): (1,1,1)}
+         (0,3): (2,1,1),
+         (1,3): (3,1,1),
+         (2,5): (2,1,1),
+         (3,4): (2,1,1),
+         (3,5): (1,1,1)}
 
 m = Model()
 
 x = {} # Flow on each edge
 y = {} # Binary variable for each edge
-# Key: vertex, value: set of edges entering vertex
+
+# key: vertex, value: list of edges entering/leaving the vertex
 edgeIn   = { v:[] for v in vertices }
 edgeOut  = { v:[] for v in vertices }
 
@@ -266,37 +302,42 @@ m.optimize()
 	Below is a visualization of the example we have discussed.
       </p>
       <p>
-	Windmills are represented by:
-	<svg height="20" width="20">
-	  <circle cx="10" cy="10" r="8" stroke="rgb(230,230,230)" stroke-width="3" fill="white" />
-	</svg>
+        <ul>
+          <li>	Turbines are represented by white circles:
+	    <svg height="20" width="20">
+	      <circle cx="10" cy="10" r="8" stroke="rgb(230,230,230)" stroke-width="3" fill="white" />
+	    </svg>
+          </li>
+          <li>
+	    Transfer stations are represented by black circles:
+	    <svg height="20" width="20">
+	      <circle cx="10" cy="10" r="8" stroke="rgb(100,100,100)" stroke-width="3" fill="rgb(150,150,150)" />
+	    </svg>.
+          </li>
+          <li>The power station is represented by a green circle:
+	    <svg height="20" width="20">
+	      <circle cx="10" cy="10" r="8" stroke="#31a354" stroke-width="3" fill="#a1d99b" />
+	    </svg>
+          </li>
+        </ul>
       </p>
+
       <p>
-	Transfer stations are represented by:
-	<svg height="20" width="20">
-	  <circle cx="10" cy="10" r="8" stroke="rgb(100,100,100)" stroke-width="3" fill="rgb(150,150,150)" />
-	</svg>.
-	Cables from the transfer stations have larger capacities than those
-	from the windmills, and so will be able to transport larger currents.
+	You can click anywhere in the sea to add a turbine. Clicking on an existing
+        turbine will remove it. Click <b>Compute Optimal Layout</b>
+	to solve and display the optimal cable network. The thickness of the edges
+	in the network correspond to the amount of current transfered along that
+        edge.
       </p>
+
       <p>
-	The power station is represented by:
-	<svg height="20" width="20">
-	  <circle cx="10" cy="10" r="8" stroke="#31a354" stroke-width="3" fill="#a1d99b" />
-	</svg>
+        You can explore different scenarios by using the slider to
+        vary the cost to lay an underwater cable. Changing this cost
+        corresponds to changing $f_{ij}$ in the model, while holding
+        $c_{ij}$ fixed. See if you can generate solutions with few
+        long cables as well as solutions with many short cables.
       </p>
-      <p>
-	You can click anywhere in the sea to add/remove windmills. Click "Compute Optimal Flow"
-	to display the optimal cable network. Note that the thickness of the lines
-	corresponds to the amount of power transferred.
-      </p>
-      <p>
-	To vary the charge for building an underwater cable ($f_{ij}$) use
-	the slider below. We keep the cost per unit current ($c_{ij}$) constant,
-	so changing $f_{ij}$ will alter the tradeoff between building a few long
-	cables or many short cables. Since the charge for building a cable is
-	proportional to its length, you can vary the price per meter of cable:
-      </p>
+
       <input type="range" min = .05 max = 0.55 step = 0.1 id="cost" value="0.55" oninput="outputUpdate(value)" class="slider-width">
       <output for=cost id=costDisplay>5500</output> dollars per meter
       <script>
@@ -306,7 +347,7 @@ m.optimize()
       </script>
       <div id="demoarea">
       </div>
-      <button class="pure-button" onclick="compute()">Compute Optimal Flow</button>
+      <button class="pure-button" onclick="compute()">Compute Optimal Layout</button>
     </div>
 
     <p>
